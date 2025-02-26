@@ -16,8 +16,8 @@ public class ChatServer {
             
             // continuously accept new client connections
             while (true) {
-            	Socket socket = serverSocket.accept();   // accepts a  connection
-				ClientHandler clientHandler = new ClientHandler(socket); // create a handler for the client (does most of the client work)
+            	Socket clientSocket = serverSocket.accept();   // accepts a  connection
+				ClientHandler clientHandler = new ClientHandler(clientSocket); // create a handler for the client (does most of the client work)
 				clients.add(clientHandler);                // add the handler to the list of clients
 				new Thread(clientHandler).start();         // start a new thread for this client (where their messages will appear)
              }
