@@ -91,7 +91,7 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-    	String serverAddress = "69.43.112.13"; //Change this to the ip_address of the computer running the server
+    	String serverAddress = "192.168.39.156"; //Change this to the ip_address of the computer running the server
         int serverPort = 5000;
         new ChatClient(serverAddress, serverPort); //localhost/server. for testing, don't mess with the IP address, but port can basically be whatever as long as it matches the one in ChatServer.java
     }
