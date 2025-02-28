@@ -3,6 +3,8 @@ package app;
 import java.io.*;     // input/output
 import java.net.*;    // socket and network
 
+
+
 public class ChatClient {
 	// vars to manage the socket and I/O streams
     private Socket socket = null;
@@ -91,8 +93,8 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-    	String serverAddress = "192.168.39.156"; //Change this to the ip_address of the computer running the server
-        int serverPort = 5000;
+    	String serverAddress = "10.96.51.99"; //Change this to the ip_address of the computer running the server
+        int serverPort = 9002;
         new ChatClient(serverAddress, serverPort); //localhost/server. for testing, don't mess with the IP address, but port can basically be whatever as long as it matches the one in ChatServer.java
     }
 }

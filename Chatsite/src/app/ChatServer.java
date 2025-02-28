@@ -6,7 +6,7 @@ import java.util.*;    // lists
 import java.util.concurrent.CopyOnWriteArrayList; // Thread-safe list
 
 public class ChatServer {
-    private static final int PORT = 5000; // port number on which the server listens
+    private static final int PORT = 9002; // port number on which the server listens
     // list of connected users
     private static List<ClientHandler> clients = new CopyOnWriteArrayList<>();
     
