@@ -48,6 +48,26 @@ public class ChatServer {
         return storedUsernames.contains(username);
     }
     
+    //add new username 
+    public static void addUsername(String username) {
+        if (username == null || username.trim().isEmpty()) { //username cant be empty
+            System.err.println("Invalid username: cannot be null or empty."); 
+            //TO DO: prevent users with usernames starting with "^, :,  , "" etc. 
+            return;
+        }
+
+        //add to hashset
+        storedUsernames.add(username);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(USERNAMES_FILE, true))) {
+            writer.write(username);
+            writer.newLine(); //write to hashset
+            System.out.println("Added new username: " + username);
+        } catch (IOException e) {
+            System.err.println("Error adding username to file: " + e.getMessage());
+        }
+    }
+    
     // broadcast a message to all clients except the sender
     public static void broadcast(String message, ClientHandler sender) {
         System.out.println("Broadcasting: " + message); // debug output on the server console. can be removed whenever, just used to make sure messages are getting sent
