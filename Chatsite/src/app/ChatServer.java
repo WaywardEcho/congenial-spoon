@@ -8,6 +8,8 @@ import java.util.concurrent.CopyOnWriteArrayList; // Thread-safe list
 public class ChatServer {
     private static final int PORT = 8080; // port number on which the server listens
     // list of connected users
+    private static final String USERNAMES_FILE = "storedUsernames.txt"; 
+    private static Set<String> storedUsernames = new HashSet<>(); // hashset (every item is unique) to store usernames
     private static List<ClientHandler> clients = new CopyOnWriteArrayList<>();
     
     public static void main(String[] args) {
@@ -25,6 +27,25 @@ public class ChatServer {
         } catch (IOException e) {
             System.out.println("Server error: " + e.getMessage());
         }
+    }
+    
+    // Load usernames into storedUsernames set
+    private static void loadUsernames() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(USERNAMES_FILE))) {
+            String username;
+            while ((username = reader.readLine()) != null) {
+                storedUsernames.add(username.trim());
+            }
+            //to delete
+            System.out.println("Existing usernames: " + storedUsernames);
+        } catch (IOException e) {
+            System.err.println("Error loading usernames: " + e.getMessage());
+        }
+    }
+
+    // Check if a username is valid
+    public static boolean isUsernameValid(String username) {
+        return storedUsernames.contains(username);
     }
     
     // broadcast a message to all clients except the sender
@@ -45,6 +66,7 @@ public class ChatServer {
         clients.remove(client);
     }
     
+    //needed?
     // returns a list of the clients
     public static List<ClientHandler> getClients() {
         return clients;

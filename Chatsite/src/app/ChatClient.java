@@ -19,7 +19,8 @@ public class ChatClient {
         		//will likely tweak this in order to increase user ease once we have a GUI going
             socket = new Socket(address, port);
             System.out.println("Connection Established!"); // message outputed to the user 
-
+            
+            
             // THIS IS THE BASIS OF BEING ABLE TO CREATE AND SEND MESSAGES
             // create/set the console input reader
             inputConsole = new BufferedReader(new InputStreamReader(System.in));
@@ -93,8 +94,9 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-    	String serverAddress = "10.140.234.228"; //Change this to the ip_address of the computer running the server
+    	String serverAddress = "10.140.119.123"; //Change this to the ip_address of the computer running the server
         int serverPort = 8080;
-        new ChatClient(serverAddress, serverPort); //localhost/server. for testing, don't mess with the IP address, but port can basically be whatever as long as it matches the one in ChatServer.java
+        new ChatClient(serverAddress, serverPort); //localhost/server. 
     }
+    
 }

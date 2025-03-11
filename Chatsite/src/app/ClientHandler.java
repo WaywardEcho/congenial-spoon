@@ -25,9 +25,21 @@ class ClientHandler implements Runnable {
             
             // ask for a username
             out.println("Enter your username: ");
-            
             // accept username
             username = in.readLine();
+            
+            //Validate Username
+            if (!ChatServer.isUsernameValid(username)) {
+            	out.println("Invalid username.");
+            	return;
+            }
+            
+            // Ask for a password (TO DO sprint 3)
+            out.println("Enter your password: ");
+            String password = in.readLine();
+
+            //acknowledge password. to be modified in future
+            out.println("Login successful. Welcome, " + username + "!");
             
             // welcome message and list of other online users
             StringBuilder sb = new StringBuilder();
