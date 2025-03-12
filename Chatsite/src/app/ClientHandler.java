@@ -40,7 +40,7 @@ class ClientHandler implements Runnable {
             } else {
                 // ask for password (very secure!!!!)
                 out.println("Enter your password: ");
-                String password = in.readLine();
+                //String password = in.readLine();
 
                 // acknolwedge log in 
                 out.println("Login successful. Welcome, " + username + "!");

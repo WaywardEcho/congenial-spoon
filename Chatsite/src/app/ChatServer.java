@@ -46,6 +46,8 @@ public class ChatServer {
     // Check if a username is valid
     public static boolean isUsernameValid(String username) {
         return storedUsernames.contains(username);
+        System.out.println("Checking username: " + username);
+        System.out.println("Usernames in system: " + ChatServer.isUsernameValid()); // Assuming you have such a method)
     }
     
     //add new username 
