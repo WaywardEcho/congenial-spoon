@@ -49,13 +49,35 @@ public class ChatServer {
      }
 
     // validate username and password
-    public static boolean isUserValid(String username, String password) {
-        return storedUsernames.containsKey(username) && storedUsernames.get(username).equals(password);
+    public static boolean isValidUsername(String username, String password) {
+    	if (username == null || username.trim().isEmpty()) {
+            return false; // username cant be empty
+        }
+        
+        if (username.length() > 32) {
+            return false; // max length: 32 characters
+        }
+
+        if (username.contains(" ")) {
+            return false; // No spaces allowed!
+        }
+
+        // check restricted first characters (cant start with ^,:,- or anything else you can think of later
+        char firstChar = username.charAt(0);
+        if (firstChar == '^' || firstChar == ':' || firstChar == '-') {
+            return false;
+        }
+
+    	return true;
+    	//return storedUsernames.containsKey(username) && storedUsernames.get(username).equals(password);
+    
     }
     
     //check if username exists
     public static boolean isUsernameTaken(String username) {
     	return storedUsernames.containsKey(username);
+    	
+    	
     }
     
     //add new username with password
