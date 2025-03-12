@@ -40,7 +40,8 @@ class ClientHandler implements Runnable {
 
                     //is it actually user or is someone else trying to hack into account
                     if (ChatServer.isUserValid(username, password)) {
-                        out.println("Login successful. Welcome, " + username + "!");
+                       //make welcome message a function and insert here
+                    	out.println("Login successful. Welcome, " + username + "!");
                         loggedIn = true;  // exit loop after "logging" in successfully
                     } else {
                         out.println("Incorrect password. Try again."); //aware that user has to reenter user name to get to password part
