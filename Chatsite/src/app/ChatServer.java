@@ -34,15 +34,14 @@ public class ChatServer {
     // Load usernames and passwords into storedUsernames.txt
     private static void loadUsernames() {
         try (BufferedReader reader = new BufferedReader(new FileReader(USERNAMES_FILE))) {
-            String username;
-            while ((username = reader.readLine()) != null) {
-            	String[] parts = username.split(":", 2); //split into username part and password part
+            String textLine;
+            while ((textLine = reader.readLine()) != null) {
+            	String[] parts = textLine.split(":", 2); //split into username part and password part
             	 if (parts.length == 2) {
-            		 storedUsernames.put(parts[0].trim(), parts[1].trim());
+            		 storedUsernames.put(parts[0].trim(), parts[1].trim()); //adds username + password, trim removes white space
             		 System.out.println("Loaded user: "+ parts[0]); //debug
             	 }
             }
-            // System.out.println("Total loaded usernames: " + storedUsernames.size()); // debug
         
         } catch (IOException e) {
              System.err.println("Error loading usernames: " + e.getMessage());
@@ -70,9 +69,9 @@ public class ChatServer {
        
        //write to hashmap
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(USERNAMES_FILE, true))) {
-            writer.write(username + ":" + password);
+            writer.write(username + ":" + password); //write value
             writer.newLine(); 
-            System.out.println("Added new username: " + username);
+            System.out.println("Added new username: " + username); //displays username
         } catch (IOException e) {
             System.err.println("Error adding username to file: " + e.getMessage());
         }

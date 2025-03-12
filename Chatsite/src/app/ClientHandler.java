@@ -24,26 +24,27 @@ class ClientHandler implements Runnable {
             out = new PrintWriter(socket.getOutputStream(), true);
             
             boolean loggedIn = false;
-            while (!loggedIn) {
+            while (!loggedIn) { //while actively using port
             	out.println("Enter your username: ");
             	username = in.readLine();
             	 
-            	 
+            	 //if username exists, enter password
             	if (ChatServer.isUsernameTaken(username)) {
                     out.println("Username found. Enter your password: ");
                     String password = in.readLine();
 
+                    //is it actually user or is someone else trying to hack into account
                     if (ChatServer.isUserValid(username, password)) {
                         out.println("Login successful. Welcome, " + username + "!");
                         loggedIn = true;  // exit loop after "logging" in successfully
                     } else {
-                        out.println("Incorrect password. Try again.");
+                        out.println("Incorrect password. Try again."); //aware that user has to reenter user name to get to password part
                     }
                 } else {
                     out.println("Username not found. Would you like to create a new account? (yes/no)");
-                    String response = in.readLine();
+                    String response = in.readLine(); //prompt user to create account bc username didnt exist
 
-                    if (response != null && response.equalsIgnoreCase("yes")) {
+                    if (response != null && response.equalsIgnoreCase("yes")) { 
                         out.println("Enter a new password: ");
                         String newPassword = in.readLine();
                         ChatServer.addUser(username, newPassword);
@@ -52,6 +53,8 @@ class ClientHandler implements Runnable {
                     }
                 }
             }
+            //TO FIX: current username bug: user says they are A, fails password, system refers to as A ,
+            //A decides to create account under B, system still referes to them as A
             
             
             // welcome message and list of other online users
@@ -78,6 +81,9 @@ class ClientHandler implements Runnable {
             
             System.out.println(username + " has joined the chat!"); //log to server
             ChatServer.broadcast(username + " has joined the chat!", this); //announce to all other users
+            
+            
+            
             
             // accept constant messages from user
             String message;
