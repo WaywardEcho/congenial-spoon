@@ -9,10 +9,12 @@ public class ChatServer {
     private static final int PORT = 8080; // port number on which the server listens
     // list of connected users
     private static final String USERNAMES_FILE = "storedUsernames.txt"; 
-    private static Set<String> storedUsernames = new HashSet<>(); // hashset (every item is unique) to store usernames
+    private static Map<String, String> storedUsernames = new HashMap<>(); // hashmap for key-value pairs (username: password)
     private static List<ClientHandler> clients = new CopyOnWriteArrayList<>();
     
     public static void main(String[] args) {
+    	loadUsernames(); //load usernames and passwords upon start
+    	
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Chat server started on port " + PORT); //start up message, can be changed later
             
@@ -29,46 +31,54 @@ public class ChatServer {
         }
     }
     
-    // Load usernames into storedUsernames set
+    // Load usernames and passwords into storedUsernames.txt
     private static void loadUsernames() {
         try (BufferedReader reader = new BufferedReader(new FileReader(USERNAMES_FILE))) {
             String username;
             while ((username = reader.readLine()) != null) {
-                storedUsernames.add(username.trim());
+            	String[] parts = username.split(":", 2); //split into username part and password part
+            	 if (parts.length == 2) {
+            		 storedUsernames.put(parts[0].trim(), parts[1].trim());
+            		 System.out.println("Loaded user: "+ parts[0]); //debug
+            	 }
             }
-            //to delete
-            System.out.println("Existing usernames: " + storedUsernames);
+            // System.out.println("Total loaded usernames: " + storedUsernames.size()); // debug
+        
         } catch (IOException e) {
-            System.err.println("Error loading usernames: " + e.getMessage());
-        }
-    }
+             System.err.println("Error loading usernames: " + e.getMessage());
+         }
+     }
 
-    // Check if a username is valid
-    public static boolean isUsernameValid(String username) {
-        return storedUsernames.contains(username);
-        System.out.println("Checking username: " + username);
-        System.out.println("Usernames in system: " + ChatServer.isUsernameValid()); // Assuming you have such a method)
+    // validate username and password
+    public static boolean isUserValid(String username, String password) {
+        return storedUsernames.containsKey(username) && storedUsernames.get(username).equals(password);
     }
     
-    //add new username 
-    public static void addUsername(String username) {
-        if (username == null || username.trim().isEmpty()) { //username cant be empty
-            System.err.println("Invalid username: cannot be null or empty."); 
-            //TO DO: prevent users with usernames starting with "^, :,  , "" etc. 
+    //check if username exists
+    public static boolean isUsernameTaken(String username) {
+    	return storedUsernames.containsKey(username);
+    }
+    
+    //add new username with password
+    public static void addUser(String username, String password) {
+        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            System.err.println("Invalid username or password.");
             return;
         }
-
-        //add to hashset
-        storedUsernames.add(username);
-
+        
+       storedUsernames.put(username, password); //add to hashmap
+       
+       //write to hashmap
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(USERNAMES_FILE, true))) {
-            writer.write(username);
-            writer.newLine(); //write to hashset
+            writer.write(username + ":" + password);
+            writer.newLine(); 
             System.out.println("Added new username: " + username);
         } catch (IOException e) {
             System.err.println("Error adding username to file: " + e.getMessage());
         }
     }
+    
+    
     
     // broadcast a message to all clients except the sender
     public static void broadcast(String message, ClientHandler sender) {

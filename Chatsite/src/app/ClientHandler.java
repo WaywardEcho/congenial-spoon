@@ -23,30 +23,39 @@ class ClientHandler implements Runnable {
             // initialize the output stream to send data OUT from the client with auto-flush enabled. auto flush is necessary to keep each print situtation on the correct lines
             out = new PrintWriter(socket.getOutputStream(), true);
             
-            // ask for a username
-            out.println("Enter your username: ");
-            username = in.readLine();
-            
-            // Validate username
-            if (!ChatServer.isUsernameValid(username)) {
-                out.println("Username not found. Would you like to create a new username? (yes/no)");
-                String response = in.readLine();
+            boolean loggedIn = false;
+            while (!loggedIn) {
+            	out.println("Enter your username: ");
+            	username = in.readLine();
+            	 
+            	 
+            	if (ChatServer.isUsernameTaken(username)) {
+                    out.println("Username found. Enter your password: ");
+                    String password = in.readLine();
 
-                if (response != null && response.equalsIgnoreCase("yes")) {
-                    // Add the new username to the file
-                    ChatServer.addUsername(username);
-                    out.println("Username created successfully. Welcome, " + username + "!");
-                } 
-            } else {
-                // ask for password (very secure!!!!)
-                out.println("Enter your password: ");
-                //String password = in.readLine();
+                    if (ChatServer.isUserValid(username, password)) {
+                        out.println("Login successful. Welcome, " + username + "!");
+                        loggedIn = true;  // exit loop after "logging" in successfully
+                    } else {
+                        out.println("Incorrect password. Try again.");
+                    }
+                } else {
+                    out.println("Username not found. Would you like to create a new account? (yes/no)");
+                    String response = in.readLine();
 
-                // acknolwedge log in 
-                out.println("Login successful. Welcome, " + username + "!");
+                    if (response != null && response.equalsIgnoreCase("yes")) {
+                        out.println("Enter a new password: ");
+                        String newPassword = in.readLine();
+                        ChatServer.addUser(username, newPassword);
+                        out.println("Account created successfully. Welcome, " + username + "!");
+                        loggedIn = true;  // exit loop if account gets created
+                    }
+                }
             }
             
+            
             // welcome message and list of other online users
+            //should welcome message be a function? -mm
             StringBuilder sb = new StringBuilder();
             sb.append("Welcome ").append(username).append("! \n");
             sb.append("Currently connected users: ");
