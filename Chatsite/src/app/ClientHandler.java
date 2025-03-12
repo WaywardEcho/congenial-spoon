@@ -27,6 +27,11 @@ class ClientHandler implements Runnable {
             while (!loggedIn) { //while actively using port
             	out.println("Enter your username: ");
             	username = in.readLine();
+            	
+            	 if (username == null || username.trim().isEmpty()) {
+            	        out.println("Invalid username. Please try again.");
+            	        continue; // Go back to the username prompt
+            	    }
             	 
             	 //if username exists, enter password
             	if (ChatServer.isUsernameTaken(username)) {
@@ -50,6 +55,11 @@ class ClientHandler implements Runnable {
                         ChatServer.addUser(username, newPassword);
                         out.println("Account created successfully. Welcome, " + username + "!");
                         loggedIn = true;  // exit loop if account gets created
+                    } 
+                    	else { //this should prevent users from entering incorrect password and being assigned username they dont deserve! identity fraud! 
+                    		out.println("Returning to username prompt...");
+                    		continue; // restart loop. ask for username again
+                    			
                     }
                 }
             }
