@@ -16,7 +16,7 @@ public class ChatClient {
     public ChatClient(String address, int port) {
         try {
             // connect to the server using the provided address and port
-        		//will likely tweak this in order to increase user ease once we have a GUI going
+        	//will likely tweak this in order to increase user ease once we have a GUI going
             socket = new Socket(address, port);
             System.out.println("Connection Established!"); // message outputed to the user 
             
@@ -43,8 +43,15 @@ public class ChatClient {
                     // continuously read messages from the server
                     	//listening basically
                     while ((serverMsg = in.readLine()) != null) {
+                    	
+                    	if (serverMsg.equalsIgnoreCase("Server is shutting down. You will be disconnected.")) {
+                            System.out.print("\nServer has shut down. Exiting...");
+                            System.exit(0); // forcefully close the client
+                        }
+                    	
+                    	
                         // move the cursor to the beginning of the line and clear it
-                        System.out.print("\r"); 
+                    	 System.out.print("\r" + " ".repeat(50) + "\r");
                         // print the incoming message on its own line
                         System.out.println(serverMsg);
                         // reprint the prompt so the user knows it's their turn to type
@@ -52,7 +59,8 @@ public class ChatClient {
                     // do not change this ^^^^ loop while this is still functioning in the terminal please
                     }
                 } catch (IOException e) {
-                    System.out.println("Error reading from server: " + e.getMessage());
+                    System.out.print("Disconnected from server. Exiting...");
+                    System.exit(0); // Close client on disconnect
                 }
             }).start();
 
@@ -63,6 +71,12 @@ public class ChatClient {
                 System.out.print(username + ": "); // display username prompt before input // "echo: " "megan: " "elise: "
                 userInput = inputConsole.readLine(); // read typed message
 
+                // checks if the connection to the server is still open
+                if (socket.isClosed() || !socket.isConnected()) {
+                    System.out.println("Disconnected from server. Exiting...");
+                    break; // breaks loop/disconnects if there's no connection
+                }// this is to prevent users from being able to send messages once the server closes
+                
                 // checks and skips empty messages (like blank enters)
                 if (userInput == null || userInput.trim().isEmpty()) {
                     continue;
@@ -94,7 +108,7 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-    	String serverAddress = "10.0.0.97"; //Change this to the ip_address of the computer running the server
+    	String serverAddress = "10.140.79.101"; //Change this to the ip_address of the computer running the server
         int serverPort = 8080;
         new ChatClient(serverAddress, serverPort); //localhost/server. 
     }

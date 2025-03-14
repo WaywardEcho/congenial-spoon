@@ -5,7 +5,7 @@ import java.net.*;    // socket and network
 
 //runnable allows for multiple iterations to be running at the same time
 class ClientHandler implements Runnable {
-	private Socket socket;             // client socket
+	public Socket socket;             // client socket
 	private PrintWriter out;           // output stream to send data to the client (send message)
 	private BufferedReader in;         // input stream to receive data (listen for message) from client
 	private String username;           // client's username
@@ -106,8 +106,9 @@ class ClientHandler implements Runnable {
                 ChatServer.broadcast(username + ": " + message, this);
             }
         } catch (IOException e) {
-            // Handle any I/O errors while communicating with the client
-            System.out.println("Error handling client " + username + ": " + e.getMessage());
+            if (!ChatServer.isShuttingDown()) { // prevent errors from printing after shutdown
+                System.out.println("Error handling client " + username + ": " + e.getMessage());
+            }
         } finally {
             // In the finally block, ensure all resources are closed and the client is removed
             try {
@@ -123,10 +124,6 @@ class ClientHandler implements Runnable {
             } catch (IOException e) {
                 System.out.println("Error closing resources for " + username + ": " + e.getMessage());
             }
-            // log the disconnection on the server
-            System.out.println(username + " has left the chat.");
-            // broadcast to all other clients that this user has left
-            ChatServer.broadcast(username + " has left the chat.", this);
             // remove this client handler from the server's client list
             ChatServer.removeClient(this);
         }
@@ -136,7 +133,7 @@ class ClientHandler implements Runnable {
     public void sendMessage(String message) {
         if (out != null) {
             out.println(message);  // send the message
-            out.flush();           // flush to ensure it is sent immediately. //this solves so many problems but honestly I'm so tireed I can't remember specifics
+            out.flush();           // flush to ensure it is sent immediately. //this solves so many problems but honestly I'm so tired I can't remember specifics
         }
     }
     
