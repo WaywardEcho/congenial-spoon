@@ -109,7 +109,7 @@ public class ChatClient {
 
     public static void main(String[] args) {
     	String serverAddress = "10.140.232.53"; //Change this to the ip_address of the computer running the server
-        int serverPort = 8080;
+        int serverPort = 8000;
         new ChatClient(serverAddress, serverPort); //localhost/server. 
     }
     
