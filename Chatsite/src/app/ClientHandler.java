@@ -28,18 +28,24 @@ class ClientHandler implements Runnable {
             	out.println("Enter your username: ");
             	username = in.readLine();
             	
-            	 if (username == null || username.trim().isEmpty()) {
-            	        out.println("Invalid username. Please try again.");
-            	        continue; // Go back to the username prompt
-            	    }
-            	 
+            	if (ChatServer.isValidUsername(username)==false){
+            		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
+        	        continue; // Go back to the username prompt
+            	}
+        
             	 //if username exists, enter password
             	if (ChatServer.isUsernameTaken(username)) {
+            		for (ClientHandler client : ChatServer.getClients()) { //loops through each user
+                        if (client.getUsername() == username) {
+                        	out.println("This username currently in use on server");
+                        	continue; //go back to the username prompt
+                        }
+            		}
                     out.println("Username found. Enter your password: ");
                     String password = in.readLine();
 
                     //is it actually user or is someone else trying to hack into account
-                    if (ChatServer.isValidUsername(username, password)) {
+                    if (ChatServer.isValidPassword(username, password)) {
                        //make welcome message a function and insert here
                     	out.println("Login successful. Welcome, " + username + "!");
                         loggedIn = true;  // exit loop after "logging" in successfully
@@ -51,6 +57,12 @@ class ClientHandler implements Runnable {
                     String response = in.readLine(); //prompt user to create account bc username didnt exist
 
                     if (response != null && response.equalsIgnoreCase("yes")) { 
+                    	while(ChatServer.isValidUsername(username)==false || ChatServer.isUsernameTaken(username)==true) {
+                    		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
+                    		out.println("Enter a new username: ");
+                    		username= in.readLine();	
+                    	} // loops until they enter a valid username that is not already taken
+      //----------------------------------------------------------------              	
                         out.println("Enter a new password: ");
                         String newPassword = in.readLine();
                         ChatServer.addUser(username, newPassword);

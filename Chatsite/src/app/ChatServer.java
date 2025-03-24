@@ -80,7 +80,7 @@ public class ChatServer {
      }
 
     // validate username and password
-    public static boolean isValidUsername(String username, String password) {
+    public static boolean isValidUsername(String username) {
     	if (username == null || username.trim().isEmpty()) {
             return false; // username cant be empty
         }
@@ -103,6 +103,17 @@ public class ChatServer {
     	//return storedUsernames.containsKey(username) && storedUsernames.get(username).equals(password);
     
     }
+//--------------------edits-----------------vvvvvvvvvv
+    public static boolean isValidPassword(String username, String password) {
+    	if (password == null || password.trim().isEmpty()){
+    		 return false; // username cant be empty
+    	}
+    	if (storedUsernames.get(username).equals(password)){ //checks if username passwords match
+    		return true;
+    	}
+    	return false;
+    }
+//---------------------edits---------^^^^^^^^^^^^^^
     
     //check if username exists
     public static boolean isUsernameTaken(String username) {
