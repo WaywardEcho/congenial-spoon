@@ -2,8 +2,6 @@ package app;
 
 import java.io.*;     // input/output
 import java.net.*;    // socket and network
-import java.util.ArrayList;
-import java.util.List;
 
 //runnable allows for multiple iterations to be running at the same time
 class ClientHandler implements Runnable {
@@ -84,8 +82,6 @@ class ClientHandler implements Runnable {
                     }
                 }
             }
-            //TO FIX: current username bug: user says they are A, fails password, system refers to as A ,
-            //A decides to create account under B, system still referes to them as A
             
             
             // welcome message and list of other online users
