@@ -9,6 +9,8 @@ class ClientHandler implements Runnable {
 	private PrintWriter out;           // output stream to send data to the client (send message)
 	private BufferedReader in;         // input stream to receive data (listen for message) from client
 	private String username;           // client's username
+	
+	
     
     public ClientHandler(Socket socket) {
         this.socket = socket; // store the client socket when the handler is created
@@ -36,7 +38,7 @@ class ClientHandler implements Runnable {
             	 //if username exists, enter password
             	if (ChatServer.isUsernameTaken(username)) {
             		for (ClientHandler client : ChatServer.getClients()) { //loops through each user
-                        if (client.getUsername() == username) {
+                        if (client.getUsername().equals(username)) {
                         	out.println("This username currently in use on server");
                         	continue; //go back to the username prompt
                         }
@@ -47,29 +49,29 @@ class ClientHandler implements Runnable {
                     //is it actually user or is someone else trying to hack into account
                     if (ChatServer.isValidPassword(username, password)) {
                        //make welcome message a function and insert here
-                    	out.println("Login successful. Welcome, " + username + "!");
+                    	out.println("Login successful");
                         loggedIn = true;  // exit loop after "logging" in successfully
                     } else {
-                        out.println("Incorrect password. Try again."); //aware that user has to reenter user name to get to password part
+                        out.println("Incorrect password. Returning to username prompt...");//aware that user has to reenter user name to get to password part
+                        continue;
                     }
                 } else {
                     out.println("Username not found. Would you like to create a new account? (yes/no)");
                     String response = in.readLine(); //prompt user to create account bc username didnt exist
 
-                    if (response != null && response.equalsIgnoreCase("yes")) { 
+                    if (response != null && response.equalsIgnoreCase("yes")) {
                     	while(ChatServer.isValidUsername(username)==false || ChatServer.isUsernameTaken(username)==true) {
                     		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
-                    		out.println("Enter a new username: ");
+                    		out.println("Enter your username: ");
                     		username= in.readLine();	
                     	} // loops until they enter a valid username that is not already taken
       //----------------------------------------------------------------              	
                         out.println("Enter a new password: ");
                         String newPassword = in.readLine();
                         ChatServer.addUser(username, newPassword);
-                        out.println("Account created successfully. Welcome, " + username + "!");
+                        out.println("Login successful");
                         loggedIn = true;  // exit loop if account gets created
-                    } 
-                    	else { //this should prevent users from entering incorrect password and being assigned username they dont deserve! identity fraud! 
+                    } else { //this should prevent users from entering incorrect password and being assigned username they dont deserve! identity fraud! 
                     		out.println("Returning to username prompt...");
                     		continue; // restart loop. ask for username again
                     			
