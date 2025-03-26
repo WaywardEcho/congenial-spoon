@@ -11,8 +11,9 @@ public class ChatClient {
     private BufferedReader inputConsole = null;  // reads user input from the console
     private PrintWriter out = null;              // sends data to the server
     private BufferedReader in = null;            // receives data from the server
-    private String username;                     // saves the user's name
-
+    private String username;  					// saves the user's name
+//    private Boolean newUsername = true;
+    
     public ChatClient(String address, int port) {
         try {
             // connect to the server using the provided address and port
@@ -31,7 +32,7 @@ public class ChatClient {
             
             // read the prompt from the server and display it
             System.out.print(in.readLine()); // expected to print "Enter your username: " --> this does!! if it does not, that means i messed smth up
-            username = inputConsole.readLine(); //saves the username for later
+            username = inputConsole.readLine();//saves the username for later
             out.println(username);
 
             // start a thread to continuously read messages from the server
@@ -43,20 +44,33 @@ public class ChatClient {
                     // continuously read messages from the server
                     	//listening basically
                     while ((serverMsg = in.readLine()) != null) {
+//                    	while (newUsername) {
+//                    		if (serverMsg.equals("Enter your username: ")){ 
+//                        		System.out.print(serverMsg);
+//                        		username = inputConsole.readLine();
+//                        		out.println(username);
+//                    		}else if(serverMsg.equals("Login successful")){
+//                    			newUsername=false;
+//                    		}else {
+////                    		System.out.print("\r" + " ".repeat(50) + "\r");
+//                             //print the incoming message on its own line
+//                            System.out.println(serverMsg);
+//                                // reprint the prompt so the user knows it's their turn to type
+//                            System.out.print(username + ": ");
+//                    		}
+//                    	}
                     	
-                    	if (serverMsg.equalsIgnoreCase("Server is shutting down. You will be disconnected.")) {
+                        if (serverMsg.equalsIgnoreCase("Server is shutting down. You will be disconnected.")) {
                             System.out.print("\nServer has shut down. Exiting...");
                             System.exit(0); // forcefully close the client
-                        }
-                    	
-                    	
+                        } 
                         // move the cursor to the beginning of the line and clear it
-                    	 System.out.print("\r" + " ".repeat(50) + "\r");
+                        System.out.print("\r" + " ".repeat(50) + "\r");
                         // print the incoming message on its own line
                         System.out.println(serverMsg);
                         // reprint the prompt so the user knows it's their turn to type
                         System.out.print(username + ": ");
-                    // do not change this ^^^^ loop while this is still functioning in the terminal please
+                     // do not change this ^^^^ loop while this is still functioning in the terminal please
                     }
                 } catch (IOException e) {
                     System.out.print("Disconnected from server. Exiting...");
@@ -68,7 +82,10 @@ public class ChatClient {
             // Main thread: read user input from user and send to server, to send to all other users
             String userInput;
             while (true) {
-                System.out.print(username + ": "); // display username prompt before input // "echo: " "megan: " "elise: "
+//            	if (!newUsername) { // Don't print username when re-entering it
+//                    System.out.print(username + ": "); 
+//                }
+            	System.out.print(username + ": "); // display username prompt before input // "echo: " "megan: " "elise: "
                 userInput = inputConsole.readLine(); // read typed message
 
                 // checks if the connection to the server is still open
@@ -108,7 +125,7 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-    	String serverAddress = "69.43.112.13"; //Change this to the ip_address of the computer running the server
+    	String serverAddress = "192.168.38.122"; //Change this to the ip_address of the computer running the server
         int serverPort = 8000;
         new ChatClient(serverAddress, serverPort); //localhost/server. 
     }

@@ -2,6 +2,8 @@ package app;
 
 import java.io.*;     // input/output
 import java.net.*;    // socket and network
+import java.util.ArrayList;
+import java.util.List;
 
 //runnable allows for multiple iterations to be running at the same time
 class ClientHandler implements Runnable {
@@ -32,17 +34,21 @@ class ClientHandler implements Runnable {
             	
             	if (ChatServer.isValidUsername(username)==false){
             		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
+            		out.println("Returning to username prompt...");
         	        continue; // Go back to the username prompt
             	}
         
             	 //if username exists, enter password
             	if (ChatServer.isUsernameTaken(username)) {
-            		for (ClientHandler client : ChatServer.getClients()) { //loops through each user
-                        if (client.getUsername().equals(username)) {
-                        	out.println("This username currently in use on server");
-                        	continue; //go back to the username prompt
-                        }
+            		if (ChatServer.getClients().contains(username)){
+            			out.println("This username currently in use on server");
+                    	out.println("Returning to username prompt...");
+                    	continue; //go back to the username prompt
             		}
+//            		for (ClientHandler client : ChatServer.getClients()) { //loops through each user
+//                        if (client.getUsername().equals(username)) {
+//                        }
+//            		}
                     out.println("Username found. Enter your password: ");
                     String password = in.readLine();
 

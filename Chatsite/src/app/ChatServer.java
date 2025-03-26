@@ -103,7 +103,7 @@ public class ChatServer {
     	//return storedUsernames.containsKey(username) && storedUsernames.get(username).equals(password);
     
     }
-//--------------------edits-----------------vvvvvvvvvv
+
     public static boolean isValidPassword(String username, String password) {
     	if (password == null || password.trim().isEmpty()){
     		 return false; // username cant be empty
@@ -113,7 +113,7 @@ public class ChatServer {
     	}
     	return false;
     }
-//---------------------edits---------^^^^^^^^^^^^^^
+
     
     //check if username exists
     public static boolean isUsernameTaken(String username) {
