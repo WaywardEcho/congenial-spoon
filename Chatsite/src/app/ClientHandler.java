@@ -8,13 +8,11 @@ class ClientHandler implements Runnable {
 	public Socket socket;             // client socket
 	private PrintWriter out;           // output stream to send data to the client (send message)
 	private BufferedReader in;         // input stream to receive data (listen for message) from client
-	private String username;           // client's username
-	
-	
+	private String username;           // client's username	
+    public boolean loggedIn = false;
     
     public ClientHandler(Socket socket) {
         this.socket = socket; // store the client socket when the handler is created
-        					  // we do not want to lose this, otherwise nothing works
     }
     
     @Override
@@ -24,29 +22,13 @@ class ClientHandler implements Runnable {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             // initialize the output stream to send data OUT from the client with auto-flush enabled. auto flush is necessary to keep each print situtation on the correct lines
             out = new PrintWriter(socket.getOutputStream(), true);
-            
-            boolean loggedIn = false;
+                        
             while (!loggedIn) { //while actively using port
             	out.println("Enter your username: ");
             	username = in.readLine();
             	
-            	if (ChatServer.isValidUsername(username)==false){
-            		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
-            		out.println("Returning to username prompt...");
-        	        continue; // Go back to the username prompt
-            	}
-        
             	 //if username exists, enter password
             	if (ChatServer.isUsernameTaken(username)) {
-            		if (ChatServer.getClients().contains(username)){
-            			out.println("This username currently in use on server");
-                    	out.println("Returning to username prompt...");
-                    	continue; //go back to the username prompt
-            		}
-//            		for (ClientHandler client : ChatServer.getClients()) { //loops through each user
-//                        if (client.getUsername().equals(username)) {
-//                        }
-//            		}
                     out.println("Username found. Enter your password: ");
                     String password = in.readLine();
 
@@ -57,27 +39,25 @@ class ClientHandler implements Runnable {
                         loggedIn = true;  // exit loop after "logging" in successfully
                     } else {
                         out.println("Incorrect password. Returning to username prompt...");//aware that user has to reenter user name to get to password part
-                        continue;
+//                        continue;
                     }
                 } else {
                     out.println("Username not found. Would you like to create a new account? (yes/no)");
                     String response = in.readLine(); //prompt user to create account bc username didnt exist
+                    out.println("DEBUG: User response for account creation: " + response); // Debug log to check user input
+
 
                     if (response != null && response.equalsIgnoreCase("yes")) {
-                    	while(ChatServer.isValidUsername(username)==false || ChatServer.isUsernameTaken(username)==true) {
-                    		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
-                    		out.println("Enter your username: ");
-                    		username= in.readLine();	
-                    	} // loops until they enter a valid username that is not already taken
-      //----------------------------------------------------------------              	
+                    	createNewAccount();           	
                         out.println("Enter a new password: ");
                         String newPassword = in.readLine();
+                        System.out.println("DEBUG: New password entered: " + newPassword); // Debug log for new password
                         ChatServer.addUser(username, newPassword);
                         out.println("Login successful");
                         loggedIn = true;  // exit loop if account gets created
                     } else { //this should prevent users from entering incorrect password and being assigned username they dont deserve! identity fraud! 
                     		out.println("Returning to username prompt...");
-                    		continue; // restart loop. ask for username again
+//                    		continue; // restart loop. ask for username again
                     			
                     }
                 }
@@ -85,71 +65,98 @@ class ClientHandler implements Runnable {
             
             
             // welcome message and list of other online users
-            //should welcome message be a function? -mm
-            StringBuilder sb = new StringBuilder();
-            sb.append("Welcome ").append(username).append("! \n");
-            sb.append("Currently connected users: ");
-            boolean first = true;
-            for (ClientHandler client : ChatServer.getClients()) { //loops through each user
-                if (client != this && client.getUsername() != null) {
-                    if (!first) {
-                        sb.append(", "); //adds to list if it's not empty
-                    }
-                    sb.append(client.getUsername());
-                    first = false;
-                }
-            }
-            if (first) { // no other user
-                sb.append("none");
-            }
-            // send the welcome message (only to this user)
-            sendMessage(sb.toString());
-
+            sendWelcomeMessage();
             
             System.out.println(username + " has joined the chat!"); //log to server
             ChatServer.broadcast(username + " has joined the chat!", this); //announce to all other users
             
+            handleMessages();
             
-            
-            
-            // accept constant messages from user
-            String message;
-            while ((message = in.readLine()) != null) {
-                if (message.equalsIgnoreCase("exit")) { //exit allows user to disconnect. could change this to a different command but it's a placeholder for now
-                    break;
-                }
-                // start line w/username and broadcast the message
-                ChatServer.broadcast(username + ": " + message, this);
-            }
         } catch (IOException e) {
             if (!ChatServer.isShuttingDown()) { // prevent errors from printing after shutdown
                 System.out.println("Error handling client " + username + ": " + e.getMessage());
             }
         } finally {
             // In the finally block, ensure all resources are closed and the client is removed
-            try {
-                if (socket != null) {
-                	socket.close();
-                }
-                if (in != null) {
-                	in.close();
-                }
-                if (out != null) {
-                	out.close();
-                }
-            } catch (IOException e) {
-                System.out.println("Error closing resources for " + username + ": " + e.getMessage());
-            }
-            // remove this client handler from the server's client list
-            ChatServer.removeClient(this);
+        	cleanup();
         }
+    }
+    
+    public void createNewAccount() throws IOException {
+        while (!ChatServer.isValidUsername(username) || ChatServer.isUsernameTaken(username)) {
+            out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
+            out.println("Enter your username: ");
+            username = in.readLine();
+        }// loops until they enter a valid username that is not already taken
+
+        out.println("Enter a new password: ");
+        String newPassword = in.readLine();
+        ChatServer.addUser(username, newPassword);
+        out.println("Login successful");
+        loggedIn = true;
+    }
+    
+    public void sendWelcomeMessage() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Welcome ").append(username).append("! \n");
+        sb.append("Currently connected users: ");
+        boolean first = true;
+        for (ClientHandler client : ChatServer.getClients()) {
+            if (client != this && client.getUsername() != null) {
+                if (!first) {
+                    sb.append(", ");//adds to list if it's not empty
+                }
+                sb.append(client.getUsername());
+                first = false;
+            }
+        }
+        if (first) { // no other user
+        	sb.append("none");
+        }
+        // send the welcome message (only to this user)
+        sendMessage(sb.toString());
+        
+    }
+    
+    public void handleMessages() throws IOException {
+    	// accept constant messages from user
+        String message;
+        while ((message = in.readLine()) != null) { // exit allows user to disconnect. could change this to a different command but it's a placeholder for now
+        	//i think we should change "exit" to "/exit", so if feels more like a command and allows the user to use the word exit in chat without getting booted. plus we could add "/help" for users to use while freaking out from our malware, but it just makes the symptoms worse or smth
+            if ("exit".equalsIgnoreCase(message)) {
+                break;
+            }
+            // start line w/username and broadcast the message
+            if (loggedIn) {
+            	ChatServer.broadcast(username + ": " + message, this);
+            }
+        }
+    }
+    
+    public void cleanup() {    
+		try {
+			if (socket != null) {
+				socket.close();
+			}
+			if (in != null) {
+				in.close();
+			}
+			if (out != null) {
+				out.close();
+			}
+		} catch (IOException e) {
+			System.out.println("Error closing resources for " + username + ": " + e.getMessage());
+		}
+		// remove this client handler from the server's client list
+		ChatServer.removeClient(this);
     }
 
     // to send a message to this client
     public void sendMessage(String message) {
         if (out != null) {
             out.println(message);  // send the message
-            out.flush();           // flush to ensure it is sent immediately. //this solves so many problems but honestly I'm so tired I can't remember specifics
+            out.flush();           // flush to ensure it is sent immediately.
+            //with all the inputs this program takes, flush becomes our bestie to make sure it's actually understanding wtf is going on
         }
     }
     
@@ -157,5 +164,4 @@ class ClientHandler implements Runnable {
     public String getUsername() {
         return username;
     }
-
 }

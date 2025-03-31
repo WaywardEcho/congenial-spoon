@@ -100,7 +100,6 @@ public class ChatServer {
         }
 
     	return true;
-    	//return storedUsernames.containsKey(username) && storedUsernames.get(username).equals(password);
     
     }
 
@@ -113,13 +112,10 @@ public class ChatServer {
     	}
     	return false;
     }
-
     
     //check if username exists
     public static boolean isUsernameTaken(String username) {
-    	return storedUsernames.containsKey(username);
-    	
-    	
+    	return storedUsernames.containsKey(username);    	
     }
     
     //add new username with password
