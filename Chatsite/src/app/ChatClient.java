@@ -30,7 +30,7 @@ public class ChatClient {
             // create/set the input stream to receive data from the server
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String userInput;
-            LoginStateMachine loginSM = new LoginStateMachine(in, out, inputConsole);
+            LoginStateMachine loginSM = new LoginStateMachine(in, out);
             
             // login system
             // read the prompt from the server and display it
@@ -38,7 +38,6 @@ public class ChatClient {
             	username = loginSM.getUsername();
                 // Login succeeded; proceed with starting the message listener thread, etc.
                 loggedIn = true;
-                startMessageListener();
                 // Continue with user input loop for sending messages
             } else {
                 // Login failed or connection closed
@@ -51,7 +50,6 @@ public class ChatClient {
             if(loggedIn) {
             // start a thread to continuously read messages from the server
             	startMessageListener();
-            	System.out.print(username + ": ");
 	
 	            // Main thread: read user input from user and send to server, to send to all other users
 	            
@@ -112,7 +110,7 @@ public class ChatClient {
                          //print the incoming message on its own line
                         System.out.println(serverMsg);
                             // reprint the prompt so the user knows it's their turn to type
-//                        System.out.print(username + ": ");
+                        System.out.print(username + ": ");
                 }
                 
             } catch (IOException e) {

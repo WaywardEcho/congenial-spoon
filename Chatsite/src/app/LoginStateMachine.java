@@ -9,10 +9,10 @@ public class LoginStateMachine {
     
     public String username;
     
-    public LoginStateMachine(BufferedReader in, PrintWriter out, BufferedReader console) {
+    public LoginStateMachine(BufferedReader in, PrintWriter out) {
         this.in = in;
         this.out = out;
-        this.console = console;
+        this.console = new BufferedReader(new InputStreamReader(System.in));
     }
     
     public boolean runLoginProcess() throws IOException {
@@ -27,13 +27,15 @@ public class LoginStateMachine {
                         return false;
                     }
                     System.out.print(prompt);
+                    System.out.flush();
                     this.username = console.readLine().trim();
                     if(this.username.isEmpty() || "exit".equalsIgnoreCase(username)) {
                         System.out.println("Exiting...");
                         out.println("exit");
                         return false;
                     }
-                    out.println(username);
+                    out.println(this.username);
+                    out.flush();
                     currentState = LoginState.RECEIVE_USERNAME_RESPONSE;
                     break;
                 case RECEIVE_USERNAME_RESPONSE:
@@ -53,12 +55,14 @@ public class LoginStateMachine {
                         return false;
                     }
                     System.out.print(passPrompt);
+                    System.out.flush();
                     String password = console.readLine().trim();
                     if(password.isEmpty()) {
                         System.out.println("Password cannot be empty.");
                         continue;
                     }
                     out.println(password);
+                    out.flush();
                     currentState = LoginState.RECEIVE_PASSWORD_RESPONSE;
                     break;
                 case RECEIVE_PASSWORD_RESPONSE:
@@ -78,8 +82,10 @@ public class LoginStateMachine {
                         return false;
                     }
                     System.out.print(accountPrompt);
+                    System.out.flush();
                     String decision = console.readLine().trim();
                     out.println(decision);
+                    out.flush();
                     String acctResponse = in.readLine();
                     if(acctResponse == null) {
                         System.out.println("Connection closed by server.");

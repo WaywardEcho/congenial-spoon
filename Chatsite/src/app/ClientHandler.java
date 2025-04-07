@@ -9,7 +9,7 @@ class ClientHandler implements Runnable {
 	private PrintWriter out;           // output stream to send data to the client (send message)
 	private BufferedReader in;         // input stream to receive data (listen for message) from client
 	private String username;           // client's username	
-    public boolean loggedIn = false;
+    private boolean loggedIn = false;
     
     public ClientHandler(Socket socket) {
         this.socket = socket; // store the client socket when the handler is created
@@ -26,12 +26,20 @@ class ClientHandler implements Runnable {
             while (!loggedIn) { //while actively using port
             	out.println("Enter your username: ");
             	username = in.readLine();
+            	if (username == null) {
+            		break;
+            	}
             	
             	 //if username exists, enter password
             	if (ChatServer.isUsernameTaken(username)) {
-                    out.println("Username found.\nEnter your password: ");
+                    out.println("Username found.");
+                    out.println("Enter your password: ");
                     String password = in.readLine();
 
+                    if (username == null) {
+                    	break;
+                    }
+                    
                     //is it actually user or is someone else trying to hack into account
                     if (ChatServer.isValidPassword(username, password)) {
                        //make welcome message a function and insert here
@@ -76,17 +84,20 @@ class ClientHandler implements Runnable {
     }
     
     public void createNewAccount() throws IOException {
-    	out.print("(Rules: <32 characters, no spaces, no ^-: characters)");
+    	out.println("(Rules: <32 characters, no spaces, no ^-: characters)");
         while (!ChatServer.isValidUsername(username) || ChatServer.isUsernameTaken(username)) {
             out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
             out.println("Enter your username: ");
+            out.flush();
             username = in.readLine();
         }// loops until they enter a valid username that is not already taken
 
         out.println("Enter a new password: ");
+        out.flush();
         String newPassword = in.readLine();
         ChatServer.addUser(username, newPassword);
         out.println("Login successful");
+        out.flush();
         loggedIn = true;// exit loop if account gets created
     }
     
