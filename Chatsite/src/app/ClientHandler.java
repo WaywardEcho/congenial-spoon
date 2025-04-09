@@ -29,8 +29,7 @@ class ClientHandler implements Runnable {
             	
             	 //if username exists, enter password
             	if (ChatServer.isUsernameTaken(username)) {
-                    out.println("Username found.");
-                    out.println("Enter your password: ");
+                    out.println("Username found. Enter your password: ");
                     String password = in.readLine();
 
                     //is it actually user or is someone else trying to hack into account
@@ -45,12 +44,19 @@ class ClientHandler implements Runnable {
                 } else {
                     out.println("Username not found. Would you like to create a new account? (yes/no)");
                     String response = in.readLine(); //prompt user to create account bc username didnt exist
+                    out.println("DEBUG: User response for account creation: " + response); // Debug log to check user input
 
 
                     if (response != null && response.equalsIgnoreCase("yes")) {
-                    	createNewAccount();
+                    	createNewAccount();           	
+                        out.println("Enter a new password: ");
+                        String newPassword = in.readLine();
+                        System.out.println("DEBUG: New password entered: " + newPassword); // Debug log for new password
+                        ChatServer.addUser(username, newPassword);
+                        out.println("Login successful");
+                        loggedIn = true;  // exit loop if account gets created
                     } else { //this should prevent users from entering incorrect password and being assigned username they dont deserve! identity fraud! 
-                    	out.println("Returning to username prompt...");
+                    		out.println("Returning to username prompt...");
 //                    		continue; // restart loop. ask for username again
                     			
                     }
@@ -87,7 +93,7 @@ class ClientHandler implements Runnable {
         String newPassword = in.readLine();
         ChatServer.addUser(username, newPassword);
         out.println("Login successful");
-        loggedIn = true;// exit loop if account gets created
+        loggedIn = true;
     }
     
     public void sendWelcomeMessage() {
