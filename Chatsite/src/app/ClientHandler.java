@@ -29,16 +29,17 @@ class ClientHandler implements Runnable {
             	
             	 //if username exists, enter password
             	if (ChatServer.isUsernameTaken(username)) {
-                    out.println("Username found.\nEnter your password: ");
+                    out.println("Username found.");
+                    out.println("Enter your password: ");
                     String password = in.readLine();
 
                     //is it actually user or is someone else trying to hack into account
                     if (ChatServer.isValidPassword(username, password)) {
                        //make welcome message a function and insert here
-                    	out.println("Login successful.");
+                    	out.println("Login successful");
                         loggedIn = true;  // exit loop after "logging" in successfully
                     } else {
-                        out.println("Incorrect password.\nReturning to username prompt...");//aware that user has to reenter user name to get to password part
+                        out.println("Incorrect password. Returning to username prompt...");//aware that user has to reenter user name to get to password part
 //                        continue;
                     }
                 } else {
@@ -76,7 +77,6 @@ class ClientHandler implements Runnable {
     }
     
     public void createNewAccount() throws IOException {
-    	out.print("(Rules: <32 characters, no spaces, no ^-: characters)");
         while (!ChatServer.isValidUsername(username) || ChatServer.isUsernameTaken(username)) {
             out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
             out.println("Enter your username: ");
@@ -92,7 +92,7 @@ class ClientHandler implements Runnable {
     
     public void sendWelcomeMessage() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Welcome ").append(username).append("!\n");
+        sb.append("Welcome ").append(username).append("! \n");
         sb.append("Currently connected users: ");
         boolean first = true;
         for (ClientHandler client : ChatServer.getClients()) {
