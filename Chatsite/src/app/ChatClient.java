@@ -12,6 +12,7 @@ public class ChatClient {
     private PrintWriter out = null;              // sends data to the server
     private BufferedReader in = null;            // receives data from the server
     private String username;  					// saves the user's name
+//    private Boolean newUsername = true;
     
     public ChatClient(String address, int port) {
         try {
@@ -28,99 +29,11 @@ public class ChatClient {
             out = new PrintWriter(socket.getOutputStream(), true);
             // create/set the input stream to receive data from the server
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-         
             
-            // login system
             // read the prompt from the server and display it
-            while (true) {
-            	
-                // read and display the server's prompt
-                String prompt = in.readLine();
-                if (prompt == null) {
-                    System.out.println("Connection closed by server.");
-                    break;
-                }
-                
-                // print the prompt received from the server
-                System.out.print(prompt); // expected to print "Enter your username: ", "Username not found. Would you like to create a new account? (yes/no)"
-                
-                System.out.print(prompt.contains("Would you like to create a new account"));
-
-                // if the prompt asks about creating a new account, read user response
-                if (prompt.contains("Would you like to create a new account")) {
-                	System.out.print("DEBUG: Waiting for user response... ");  // Debug print
-                	String accountChoice = inputConsole.readLine().trim();
-                	System.out.println("DEBUG: User entered -> " + accountChoice);
-                	
-                	if (accountChoice == null || accountChoice.trim().isEmpty()) {
-                        System.out.println("DEBUG: No input provided. Returning to username prompt.");
-                        continue;
-                    }
-                	out.println(accountChoice);  // Send response to server
-                    System.out.println("DEBUG: Sent '" + accountChoice + "' to server.");
-
-                    if ("yes".equalsIgnoreCase(accountChoice)) {
-                        // Proceed with account creation
-                        System.out.println("DEBUG: Creating new account...");
-                    } else {
-                        // Handle invalid input or return to login
-                        System.out.println("DEBUG: Invalid input. Returning to login prompt.");
-                        continue;
-                    }
-
-                    
-                    // Read the next response to prevent skipping
-                    String followUpResponse = in.readLine();
-                    if (followUpResponse != null) {
-                        System.out.println("DEBUG: Server follow-up response: " + followUpResponse);
-                    } else {
-                        System.out.println("DEBUG: No follow-up response from server.");
-                    }
-                    continue; // Restart loop so user is properly prompted again
-                }
-
-                // otherwise, assume it's asking for username or password
-                String userInput = inputConsole.readLine().trim();
-                
-                // check for null or "exit" before sending to the server
-                if (userInput.isEmpty() || "exit".equalsIgnoreCase(userInput)) {
-                    System.out.println("Exiting...");
-                    out.println("exit");
-                    socket.close();
-                    System.exit(0);
-                }
-
-                out.println(userInput);
-
-                // read and process the next response
-                String response = in.readLine();
-                if (response == null) {
-                    System.out.println("Connection closed by server.");
-                    break;
-                }
-
-                System.out.println(response);
-
-                if (response.contains("Enter your password")) {
-            		// now read the password since the server is prompting for it
-                    String password = inputConsole.readLine().trim();
-                    if (password.isEmpty()) {
-                        System.out.println("Password cannot be empty. Returning to username prompt.");
-                        continue;
-                    }
-                    out.println(password);
-
-                    // Process login result
-                    String loginResult = in.readLine(); // read login success/failure
-                    System.out.println(loginResult);
-
-                    if (loginResult.contains("Login successful")) {
-                        username = userInput;
-                        break; // Exit loop since login succeeded
-                    }
-                }            		
-            }
-
+            System.out.print(in.readLine()); // expected to print "Enter your username: " --> this does!! if it does not, that means i messed smth up
+            username = inputConsole.readLine();//saves the username for later
+            out.println(username);
 
             // start a thread to continuously read messages from the server
             	//this is the part that holds any of the messages together in a cohearant order. every tweak to this makes the username print as part of the input
@@ -131,14 +44,34 @@ public class ChatClient {
                     // continuously read messages from the server
                     	//listening basically
                     while ((serverMsg = in.readLine()) != null) {
+//                    	while (newUsername) {
+//                    		if (serverMsg.equals("Enter your username: ")){ 
+//                        		System.out.print(serverMsg);
+//                        		username = inputConsole.readLine();
+//                        		out.println(username);
+//                    		}else if(serverMsg.equals("Login successful")){
+//                    			newUsername=false;
+//                    		}else {
+////                    		System.out.print("\r" + " ".repeat(50) + "\r");
+//                             //print the incoming message on its own line
+//                            System.out.println(serverMsg);
+//                                // reprint the prompt so the user knows it's their turn to type
+//                            System.out.print(username + ": ");
+//                    		}
+//                    	}
                     	
-                    		System.out.print("\r" + " ".repeat(50) + "\r");
-                             //print the incoming message on its own line
-                            System.out.println(serverMsg);
-                                // reprint the prompt so the user knows it's their turn to type
-                            System.out.print(username + ": ");
-                    	}
-                    
+                        if (serverMsg.equalsIgnoreCase("Server is shutting down. You will be disconnected.")) {
+                            System.out.print("\nServer has shut down. Exiting...");
+                            System.exit(0); // forcefully close the client
+                        } 
+                        // move the cursor to the beginning of the line and clear it
+                        System.out.print("\r" + " ".repeat(50) + "\r");
+                        // print the incoming message on its own line
+                        System.out.println(serverMsg);
+                        // reprint the prompt so the user knows it's their turn to type
+                        System.out.print(username + ": ");
+                     // do not change this ^^^^ loop while this is still functioning in the terminal please
+                    }
                 } catch (IOException e) {
                     System.out.print("Disconnected from server. Exiting...");
                     System.exit(0); // Close client on disconnect
@@ -149,7 +82,10 @@ public class ChatClient {
             // Main thread: read user input from user and send to server, to send to all other users
             String userInput;
             while (true) {
-            	System.out.print(username + ": "); // display username prompt before input // "echo: " "megan: " "elise: "    	
+//            	if (!newUsername) { // Don't print username when re-entering it
+//                    System.out.print(username + ": "); 
+//                }
+            	System.out.print(username + ": "); // display username prompt before input // "echo: " "megan: " "elise: "
                 userInput = inputConsole.readLine(); // read typed message
 
                 // checks if the connection to the server is still open
@@ -173,7 +109,7 @@ public class ChatClient {
                 out.println(userInput);
             }
 
-            // clean up resources (close the socket and all streams) 
+            // clean up resources (close the socket and all streams)
             socket.close();
             inputConsole.close();
             out.close();
@@ -189,7 +125,7 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-    	String serverAddress = "192.168.36.112"; //Change this to the ip_address of the computer running the server
+    	String serverAddress = "192.168.38.122"; //Change this to the ip_address of the computer running the server
         int serverPort = 8000;
         new ChatClient(serverAddress, serverPort); //localhost/server. 
     }
