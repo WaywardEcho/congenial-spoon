@@ -5,6 +5,11 @@ import java.net.*;    // socket and network
 import java.util.*;    // lists
 import java.util.concurrent.CopyOnWriteArrayList; // Thread-safe list
 
+//hashing imports vvvv
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
+
 public class ChatServer {
     private static final int PORT = 8000; // port number on which the server listens
     private static final String USERNAMES_FILE = "storedUsernames.txt"; // list of logins
@@ -62,6 +67,25 @@ public class ChatServer {
         }
     }
     
+    
+    // hashes a password using SHA-256 and returns the result as a hexadecimal string
+	public static String hashPassword(String password) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256"); // create a SHA-256 MessageDigest instance
+			byte[] hashBytes = digest.digest(password.getBytes(StandardCharsets.UTF_8)); // hash the password input as bytes using UTF-8 encoding
+			
+			StringBuilder hexString = new StringBuilder(); // convert hashed bytes to hexadecimal string
+			for (byte b : hashBytes) {
+				String hex = Integer.toHexString(0xff & b);
+				if (hex.length() == 1) hexString.append('0');
+				hexString.append(hex);
+			}
+			return hexString.toString();
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException("SHA-256 algorithm not found.", e); // should never happen unless Java runtime is misconfigured, but just in case!
+		}
+	}
+    
     // Load usernames and passwords into storedUsernames.txt
     private static void loadUsernames() {
         try (BufferedReader reader = new BufferedReader(new FileReader(USERNAMES_FILE))) {
@@ -104,22 +128,26 @@ public class ChatServer {
     
     }
 
+    // validates that the entered password matches the stored hashed password
     public static boolean isValidPassword(String username, String password) {
     	if (password == null || password.trim().isEmpty()){
     		 return false; // username cant be empty
     	}
-    	if (storedUsernames.get(username).equals(password)){ //checks if username passwords match
-    		return true;
-    	}
-    	return false;
+    	
+        String storedHash = storedUsernames.get(username); // look up the stored hash for this username
+        if (storedHash == null) {
+        	return false;
+        }
+        
+        String enteredHash = hashPassword(password); // hash the entered password for comparison
+
+        return storedHash.equals(enteredHash); // compare the hashes
     }
 
     
     //check if username exists
     public static boolean isUsernameTaken(String username) {
     	return storedUsernames.containsKey(username);
-    	
-    	
     }
     
     //add new username with password
@@ -128,12 +156,13 @@ public class ChatServer {
             System.err.println("Invalid username or password.");
             return;
         }
-        
-       storedUsernames.put(username, password); //add to hashmap
+    
+       String hashed = hashPassword(password); // hash the plain-text password before storing
+       storedUsernames.put(username, hashed); //add to hashmap
        
        //write to hashmap
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(USERNAMES_FILE, true))) {
-            writer.write(username + ":" + password); //write value
+            writer.write(username + ":" + hashed); //write value
             writer.newLine(); 
             System.out.println("Added new username: " + username); //displays username
         } catch (IOException e) {
