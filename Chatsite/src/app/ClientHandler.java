@@ -25,6 +25,7 @@ class ClientHandler implements Runnable {
             out = new PrintWriter(socket.getOutputStream(), true);
             
             boolean loggedIn = false;
+            logLoop:
             while (!loggedIn) { //while actively using port
             	out.println("Enter your username: ");
             	username = in.readLine();
@@ -32,20 +33,22 @@ class ClientHandler implements Runnable {
             	if (ChatServer.isValidUsername(username)==false){
             		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
             		out.println("Returning to username prompt...");
-        	        continue; // Go back to the username prompt
+        	        continue logLoop; // Go back to the username prompt
             	}
         
             	 //if username exists, enter password
             	if (ChatServer.isUsernameTaken(username)) {
-            		if (ChatServer.getClients().contains(username)){
-            			out.println("This username currently in use on server");
-                    	out.println("Returning to username prompt...");
-                    	continue; //go back to the username prompt
+//            		System.out.println("Checking if taken");
+            		for (ClientHandler client : ChatServer.getClients()) { //loops through each user
+            			if (client != this && client.getUsername().equals(username)){
+//            				System.out.println("Matched");
+            				out.println("This username currently in use on server");
+                        	out.println("Returning to username prompt...");
+                        	continue logLoop; //go back to the username prompt
+            			}
             		}
-//            		for (ClientHandler client : ChatServer.getClients()) { //loops through each user
-//                        if (client.getUsername().equals(username)) {
-//                        }
-//            		}
+      
+//            	
                     out.println("Username found. Enter your password: ");
                     String password = in.readLine();
 
@@ -56,7 +59,8 @@ class ClientHandler implements Runnable {
                         loggedIn = true;  // exit loop after "logging" in successfully
                     } else {
                         out.println("Incorrect password. Returning to username prompt...");//aware that user has to reenter user name to get to password part
-                        continue;
+                        username = "";
+                        continue logLoop;
                     }
                 } else {
                     out.println("Username not found. Would you like to create a new account? (yes/no)");
@@ -76,7 +80,7 @@ class ClientHandler implements Runnable {
                         loggedIn = true;  // exit loop if account gets created
                     } else { //this should prevent users from entering incorrect password and being assigned username they dont deserve! identity fraud! 
                     		out.println("Returning to username prompt...");
-                    		continue; // restart loop. ask for username again
+                    		continue logLoop; // restart loop. ask for username again
                     			
                     }
                 }
@@ -106,11 +110,9 @@ class ClientHandler implements Runnable {
 
             
             System.out.println(username + " has joined the chat!"); //log to server
-            ChatServer.broadcast(username, " has joined the chat!", this); //announce to all other users
+            ChatServer.broadcast(username, " Joined the chat!", this); //announce to all other users
             
-            
-            
-            
+      
             // accept constant messages from user
             String message;
             while ((message = in.readLine()) != null) {

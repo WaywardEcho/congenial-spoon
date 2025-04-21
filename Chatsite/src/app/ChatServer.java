@@ -179,13 +179,13 @@ public class ChatServer {
     	if (mesCount % 10 == 0) {
     		message = pigLatin(message);
     	}
-    	System.out.println("Broadcasting: " + username + ":" + message); // debug output on the server console. can be removed whenever, just used to make sure messages are getting sent
+    	System.out.println("Broadcasting: " + username + ": " + message); // debug output on the server console. can be removed whenever, just used to make sure messages are getting sent
         // loop through all clients
         for (ClientHandler client : clients) {
             // skip the sender (so they don't get their own messages)
             if (client != sender) {
                 // use the public sendMessage() method to send the message
-                client.sendMessage(message);
+                client.sendMessage(username + ": " + message);
             }
         }
     }
@@ -193,8 +193,8 @@ public class ChatServer {
     //change the message into Pig Latin
     public static String pigLatin(String message) {
     	//turn string into PigLatin
-    	System.out.println("PigLatin Test");
-//______________________________________________________________
+//    	System.out.println("PigLatin Test");
+
     	String pig = "";
     	String endTag= "";
     	for (int i = 0; i < message.length(); i++) {
