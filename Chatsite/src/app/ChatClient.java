@@ -69,8 +69,9 @@ public class ChatClient {
                         // print the incoming message on its own line
                         System.out.println(serverMsg);
                         // reprint the prompt so the user knows it's their turn to type
-                        System.out.print(username + ": ");
+                        System.out.print(" - ");
                      // do not change this ^^^^ loop while this is still functioning in the terminal please
+                       //got rid of username here since we couldn't update it, was originally (username + " ")
                     }
                 } catch (IOException e) {
                     System.out.print("Disconnected from server. Exiting...");
@@ -85,7 +86,8 @@ public class ChatClient {
 //            	if (!newUsername) { // Don't print username when re-entering it
 //                    System.out.print(username + ": "); 
 //                }
-            	System.out.print(username + ": "); // display username prompt before input // "echo: " "megan: " "elise: "
+            	System.out.print(" - "); // display username prompt before input // "echo: " "megan: " "elise: "
+            	//got rid of username here since we couldn't update it, was originally (username + " ")
                 userInput = inputConsole.readLine(); // read typed message
 
                 // checks if the connection to the server is still open
