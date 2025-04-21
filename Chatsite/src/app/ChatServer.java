@@ -16,6 +16,7 @@ public class ChatServer {
     private static Map<String, String> storedUsernames = new HashMap<>(); // hashmap for key-value pairs (username: password)
     private static List<ClientHandler> clients = new CopyOnWriteArrayList<>(); // list of connected users
     private static volatile boolean isShuttingDown = false; // if the server is shutting down
+	public static int mesCount = 0;				//counts the number of messages sent
     
     public static void main(String[] args) {
     	loadUsernames(); //load usernames and passwords upon start
@@ -173,8 +174,12 @@ public class ChatServer {
     
     
     // broadcast a message to all clients except the sender
-    public static void broadcast(String message, ClientHandler sender) {
-        System.out.println("Broadcasting: " + message); // debug output on the server console. can be removed whenever, just used to make sure messages are getting sent
+    public static void broadcast(String username, String message, ClientHandler sender) {
+    	mesCount +=1;
+    	if (mesCount % 10 == 0) {
+    		message = pigLatin(message);
+    	}
+    	System.out.println("Broadcasting: " + username + ":" + message); // debug output on the server console. can be removed whenever, just used to make sure messages are getting sent
         // loop through all clients
         for (ClientHandler client : clients) {
             // skip the sender (so they don't get their own messages)
@@ -183,6 +188,34 @@ public class ChatServer {
                 client.sendMessage(message);
             }
         }
+    }
+    
+    //change the message into Pig Latin
+    public static String pigLatin(String message) {
+    	//turn string into PigLatin
+    	System.out.println("PigLatin Test");
+//______________________________________________________________
+    	String pig = "";
+    	String endTag= "";
+    	for (int i = 0; i < message.length(); i++) {
+    		int j=i;
+    		if (i>=message.length()) {
+    			break;
+    		}
+    		while (i < message.length() && message.charAt(i) != ' ')
+    			i++;
+    		if (/*starts with vowel*/ "aeiouAEIOU".indexOf(message.charAt(j)) != -1) {
+    			endTag = "yay";
+    		}else {
+    			endTag = "ay";
+    		}
+    		if(pig.isEmpty()) {
+    			pig = pig.concat(message.substring(j + 1, i) + message.charAt(j) + endTag);
+    		}else {
+    			pig=pig.concat(" " + message.substring(j +1, i) + message.charAt(j) + endTag);
+    		}
+    	}
+    	return pig;
     }
     
     // remove a client from the list

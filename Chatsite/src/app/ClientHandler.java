@@ -9,8 +9,7 @@ class ClientHandler implements Runnable {
 	private PrintWriter out;           // output stream to send data to the client (send message)
 	private BufferedReader in;         // input stream to receive data (listen for message) from client
 	private String username;           // client's username
-	
-	
+
     
     public ClientHandler(Socket socket) {
         this.socket = socket; // store the client socket when the handler is created
@@ -107,7 +106,7 @@ class ClientHandler implements Runnable {
 
             
             System.out.println(username + " has joined the chat!"); //log to server
-            ChatServer.broadcast(username + " has joined the chat!", this); //announce to all other users
+            ChatServer.broadcast(username, " has joined the chat!", this); //announce to all other users
             
             
             
@@ -119,7 +118,7 @@ class ClientHandler implements Runnable {
                     break;
                 }
                 // start line w/username and broadcast the message
-                ChatServer.broadcast(username + ": " + message, this);
+                ChatServer.broadcast(username, message, this);
             }
         } catch (IOException e) {
             if (!ChatServer.isShuttingDown()) { // prevent errors from printing after shutdown
