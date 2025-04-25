@@ -1,5 +1,5 @@
 Software Engineering Capstone Project Spring 2025
-By: Echo Brum, Elise Harrel, Megan McNamara
+By: Echo Brum, Elise Harrell, Megan McNamara
 
 Goal of project is to create a secure chat site with malicious features and a focus on encryption.
 This project took place over the course of 16 weeks during the Spring 2025 semester at Simmons University in Boston, MA, USA. 
