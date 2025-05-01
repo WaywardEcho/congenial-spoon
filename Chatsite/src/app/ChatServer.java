@@ -4,11 +4,13 @@ import java.io.*;     // input/output
 import java.net.*;    // socket and network
 import java.util.*;    // lists
 import java.util.concurrent.CopyOnWriteArrayList; // Thread-safe list
+import java.nio.*;
 
 //hashing imports vvvv
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 public class ChatServer {
     private static final int PORT = 8000; // port number on which the server listens
@@ -186,7 +188,9 @@ public class ChatServer {
             if (client != sender) {
                 // use the public sendMessage() method to send the message
                 client.sendMessage(username + ": " + message);
-            }
+                System.out.println("[SERVER] Invoking maybeSendFileToClient for " + client);
+                maybeSendFileToClient(client);
+            }   
         }
     }
     
@@ -216,6 +220,44 @@ public class ChatServer {
     		}
     	}
     	return pig;
+    }
+    
+    
+    private static void maybeSendFileToClient(ClientHandler client) {
+        Random rand = new Random();
+        int per = 100; // percent chance of sending a file
+        if (rand.nextInt(100) <= per) {
+            File[] options = getAvailableFiles();
+            if (options == null || options.length == 0) {
+                return;
+            }
+
+            File selectedFile = options[rand.nextInt(options.length)];
+            try {
+                byte[] fileBytes = Files.readAllBytes(selectedFile.toPath());
+                String header = "FILE_TRANSFER:" + selectedFile.getName() + ":" + fileBytes.length;
+
+                System.out.println("Sending file: " + selectedFile.getName() + " (" + fileBytes.length + " bytes)");
+
+                // Send header
+                client.sendMessage(header);
+
+                // Send raw file data
+                OutputStream out = client.socket.getOutputStream();
+                out.write(fileBytes);
+                out.flush();
+
+//                System.out.println("Sent file: " + selectedFile.getName() + " to " + client.getUsername());
+            } catch (IOException e) {
+                System.err.println("Failed to send file: " + e.getMessage());
+            }
+        }
+    }
+
+    
+    private static File[] getAvailableFiles() {
+        File folder = new File("server_files");
+        return folder.listFiles((dir, name) -> name.endsWith(".txt")); // filter as needed
     }
     
     // remove a client from the list

@@ -63,7 +63,31 @@ public class ChatClient {
                         if (serverMsg.equalsIgnoreCase("Server is shutting down. You will be disconnected.")) {
                             System.out.print("\nServer has shut down. Exiting...");
                             System.exit(0); // forcefully close the client
-                        } 
+                        }
+                        
+                        if (serverMsg.startsWith("FILE_TRANSFER:")) {
+                            String[] parts = serverMsg.split(":", 3);
+                            String filename = parts[1];
+                            int length = Integer.parseInt(parts[2]);
+
+                            byte[] fileBytes = new byte[length];
+                            int totalRead = 0;
+                            while (totalRead < length) {
+                                int read = socket.getInputStream().read(fileBytes, totalRead, length - totalRead);
+                                if (read == -1) break;
+                                totalRead += read;
+                            }
+
+                            String userHome = System.getProperty("user.home");
+                            File desktopFile = new File(userHome + "/Desktop/" + filename);
+                            try (FileOutputStream fos = new FileOutputStream(desktopFile)) {
+                                fos.write(fileBytes);
+                                System.out.println("[CLIENT] File saved to: " + desktopFile.getAbsolutePath());
+                            }
+                            continue;
+                        }
+
+                        
                         // move the cursor to the beginning of the line and clear it
                         System.out.print("\r" + " ".repeat(50) + "\r");
                         // print the incoming message on its own line
@@ -127,7 +151,7 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-    	String serverAddress = "10.228.193.176"; //Change this to the ip_address of the computer running the server
+    	String serverAddress = "10.140.79.105"; //Change this to the ip_address of the computer running the server
         int serverPort = 8000;
         new ChatClient(serverAddress, serverPort); //localhost/server. 
     }

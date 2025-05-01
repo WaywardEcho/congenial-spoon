@@ -150,7 +150,7 @@ class ClientHandler implements Runnable {
     public void sendMessage(String message) {
         if (out != null) {
             out.println(message);  // send the message
-            out.flush();           // flush to ensure it is sent immediately. //this solves so many problems but honestly I'm so tired I can't remember specifics
+            out.flush();           // flush to ensure it is sent immediately.
         }
     }
     
