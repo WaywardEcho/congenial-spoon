@@ -171,6 +171,68 @@ public class ChatServer {
         }
     }
     
+    public static void deleteUser(String username, String password) {
+    	if (!isUsernameTaken(username)) {
+    		System.out.println("Username does not exist.");
+    		return;
+    		}
+    	
+    	if (!isValidPassword(username,password)) {
+    		System.out.println("Incorrect password. Cannot delete user.");
+    		return;
+    	}
+    	
+    	File file = new File(USERNAMES_FILE);
+    	List<String> updatedLines = new ArrayList<>(); //empty list that will temporraly hold all lines WANT TO KEEP
+    	
+    	//read file and filter out the user
+    	try (BufferedReader reader = new BufferedReader(new FileReader(file))){
+    		String line;
+    		while((line = reader.readLine()) != null) {
+    			String[] parts = line.split(":", 2);
+    			if (parts.length == 2 && !parts[0].trim().equals(username)) {
+    				updatedLines.add(line);
+    			}
+    		}
+    	} catch(IOException e) {
+    		System.err.println("Error reading user file: " + e.getMessage());
+    		return;
+    	}
+    	
+    	//rewrite file without the deleted user
+    	try(BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))){
+    		for (String updatedLine : updatedLines) {
+    			writer.write(updatedLine);
+    			writer.newLine();
+    		}
+    	} catch (IOException e) {
+    		System.err.println("Erorr writing updated user file: " + e.getMessage());
+    		return;
+    	}
+    	
+    	//remove from in-memory map
+    	storedUsernames.remove(username);
+    	System.out.println("User '" + username + "' successfully deleted.");
+    	
+    }
+    
+   public static void updatePassword(String username, String newPassword) {
+	   String hashed = hashPassword(newPassword);
+	   storedUsernames.put(username, hashed);
+	   
+	   //rewrite entire file to include new pass
+	   try (BufferedWriter writer = new BufferedWriter(new FileWriter(USERNAMES_FILE))) {
+          //storedUsernames is a HashMap<String, String>, entrySet() gets all usrname + pswd, loop thru each pair
+		   for (Map.Entry<String, String> entry : storedUsernames.entrySet()) {
+        	  writer.write(entry.getKey() + ":" + entry.getValue());
+        	  writer.newLine(); 
+          }
+          System.out.println("Password updated for user: " + username);
+	   } catch (IOException e) {
+		   System.err.println("Error updating password in file: "+ e.getMessage());
+	   }
+   }
+    
     
     
     // broadcast a message to all clients except the sender

@@ -19,14 +19,12 @@ class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-        	// initialize the input stream to read IN data from the client
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            // initialize the output stream to send data OUT from the client with auto-flush enabled. auto flush is necessary to keep each print situtation on the correct lines
             out = new PrintWriter(socket.getOutputStream(), true);
             
             boolean loggedIn = false;
             logLoop:
-            while (!loggedIn) { //while actively using port
+            while (!loggedIn) {
             	out.println("Enter your username: ");
             	username = in.readLine();
             	
@@ -88,9 +86,9 @@ class ClientHandler implements Runnable {
             
             
             // welcome message and list of other online users
-            //should welcome message be a function? -mm
             StringBuilder sb = new StringBuilder();
             sb.append("Welcome ").append(username).append("! \n");
+            //to see commands, pls enter "/help"
             sb.append("Currently connected users: ");
             boolean first = true;
             for (ClientHandler client : ChatServer.getClients()) { //loops through each user
@@ -116,12 +114,58 @@ class ClientHandler implements Runnable {
             // accept constant messages from user
             String message;
             while ((message = in.readLine()) != null) {
-                if (message.equalsIgnoreCase("exit")) { //exit allows user to disconnect. could change this to a different command but it's a placeholder for now
+                if (message.equalsIgnoreCase("/exit")) { //exit allows user to disconnect. could change this to a different command but it's a placeholder for now
                     break;
+                } else if (message.equalsIgnoreCase("/deleteaccount")) {
+                	out.println("Are you sure you want to delete your account? This action cannot be undone. (Yes/No");
+                	String confirmation = in.readLine();
+                	if (confirmation != null && confirmation.equalsIgnoreCase("yes")) {
+                		out.println("Please enter your password to confirm deletion");
+                		String password = in.readLine();
+                		
+                		if (ChatServer.isValidPassword(username, password)) {
+                			ChatServer.deleteUser(username, password);
+                			out.println("You account has been deleted. Bye!");
+                			break;
+                		} else {
+                			out.println("Password incorrect. Account is still active");	
+                		}
+                	} else {
+                		out.println("Account deletion canceled");
+                	}
+                		
+                } 	else if(message.equalsIgnoreCase("/changepassword")){
+                		out.println("Please enter your current password: ");
+                		String currentPassword = in.readLine();
+                		
+                		if(ChatServer.isValidPassword(username, currentPassword)) {
+                			out.println("Enter your new password: ");
+                			String newPassword = in.readLine();
+                			
+                			if (newPassword == null || newPassword.trim().isEmpty()) {
+                				out.println("New password cannot be empty. Please enter your new password: ");
+                			} else{
+                					ChatServer.updatePassword(username, newPassword);
+                					out.println("Password updated sucessfully.");
+                			}
+                			} else {
+                				out.println("Incorrect password. Please enter your current password: ");
+                			}
+
+                } else if (message.equalsIgnoreCase("/help")) {
+                    		out.println("Available commands:");
+                    		out.println(" /help - Display the help message");
+                    		out.println(" /deleteaccount - Delete your account");
+                    		out.println(" /exit - Disconnect from the server");
+                    		out.println(" /changepassword - Change existing account password");
+                    		
+                } else {
+                		ChatServer.broadcast(username,  message, this);
                 }
-                // start line w/username and broadcast the message
-                ChatServer.broadcast(username, message, this);
             }
+                
+                // start line w/username and broadcast the message
+                //ChatServer.broadcast(username, message, this);
         } catch (IOException e) {
             if (!ChatServer.isShuttingDown()) { // prevent errors from printing after shutdown
                 System.out.println("Error handling client " + username + ": " + e.getMessage());
@@ -145,6 +189,7 @@ class ClientHandler implements Runnable {
             ChatServer.removeClient(this);
         }
     }
+
 
     // to send a message to this client
     public void sendMessage(String message) {
