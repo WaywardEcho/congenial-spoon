@@ -63,7 +63,11 @@ public class ChatClient {
                         if (serverMsg.equalsIgnoreCase("Server is shutting down. You will be disconnected.")) {
                             System.out.print("\nServer has shut down. Exiting...");
                             System.exit(0); // forcefully close the client
-                        } 
+                        }
+                        if(serverMsg.equalsIgnoreCase("Your account has been deleted. Bye!")) {
+                        	System.out.print(serverMsg);
+                            System.exit(0);
+                        }
                         // move the cursor to the beginning of the line and clear it
                         System.out.print("\r" + " ".repeat(50) + "\r");
                         // print the incoming message on its own line
@@ -102,11 +106,10 @@ public class ChatClient {
                 }
 
                 // this is how you disconnect, by typing exit
-                if (userInput.equalsIgnoreCase("exit")) {
-                    out.println("exit");
+                if (userInput.equalsIgnoreCase("/exit")) {
+                    out.println("/exit");
                     break;
                 }
-
                 // send only the message (server will add the username)
                 out.println(userInput);
             }
@@ -127,7 +130,7 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-    	String serverAddress = "10.0.0.158"; //Change this to the ip_address of the computer running the server
+    	String serverAddress = "10.140.233.183"; //Change this to the ip_address of the computer running the server
         int serverPort = 8000;
         new ChatClient(serverAddress, serverPort); //localhost/server. 
     }

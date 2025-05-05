@@ -115,8 +115,9 @@ class ClientHandler implements Runnable {
             String message;
             while ((message = in.readLine()) != null) {
                 if (message.equalsIgnoreCase("/exit")) { //exit allows user to disconnect. could change this to a different command but it's a placeholder for now
-                    break;
-                } else if (message.equalsIgnoreCase("/deleteaccount")) {
+                	ChatServer.broadcast(username, " has left the chat!", this);
+                	break;
+                }else if(message.equalsIgnoreCase("/deleteaccount")) {
                 	out.println("Are you sure you want to delete your account? This action cannot be undone. (Yes/No");
                 	String confirmation = in.readLine();
                 	if (confirmation != null && confirmation.equalsIgnoreCase("yes")) {
@@ -125,7 +126,8 @@ class ClientHandler implements Runnable {
                 		
                 		if (ChatServer.isValidPassword(username, password)) {
                 			ChatServer.deleteUser(username, password);
-                			out.println("You account has been deleted. Bye!");
+                			out.println("Your account has been deleted. Bye!");
+                			ChatServer.broadcast(username, " has left the chat!", this);
                 			break;
                 		} else {
                 			out.println("Password incorrect. Account is still active");	
@@ -134,23 +136,23 @@ class ClientHandler implements Runnable {
                 		out.println("Account deletion canceled");
                 	}
                 		
-                } 	else if(message.equalsIgnoreCase("/changepassword")){
-                		out.println("Please enter your current password: ");
-                		String currentPassword = in.readLine();
+                }else if(message.equalsIgnoreCase("/changepassword")){
+                	out.println("Please enter your current password: ");
+                	String currentPassword = in.readLine();
                 		
-                		if(ChatServer.isValidPassword(username, currentPassword)) {
-                			out.println("Enter your new password: ");
-                			String newPassword = in.readLine();
+                	if(ChatServer.isValidPassword(username, currentPassword)) {
+                		out.println("Enter your new password: ");
+                		String newPassword = in.readLine();
                 			
-                			if (newPassword == null || newPassword.trim().isEmpty()) {
-                				out.println("New password cannot be empty. Please enter your new password: ");
-                			} else{
-                					ChatServer.updatePassword(username, newPassword);
-                					out.println("Password updated sucessfully.");
-                			}
-                			} else {
-                				out.println("Incorrect password. Please enter your current password: ");
-                			}
+                		if (newPassword == null || newPassword.trim().isEmpty()) {
+                			out.println("New password cannot be empty. Please enter your new password: ");
+                		} else{
+                				ChatServer.updatePassword(username, newPassword);
+                				out.println("Password updated sucessfully.");
+                		}
+                	} else {
+                		out.println("Incorrect password. Please enter your current password: ");
+                	}
 
                 } else if (message.equalsIgnoreCase("/help")) {
                     		out.println("Available commands:");
