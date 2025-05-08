@@ -67,8 +67,8 @@ public class ChatClient {
             String userInput;
             while (true) {
             	System.out.print(" - ");
-            	//got rid of username here since we couldn't update it, was originally (username + " ")
-                userInput = inputConsole.readLine(); // read typed message
+            	//got rid of username here since we couldn't update it
+                userInput = inputConsole.readLine();
 
                 // checks if the connection to the server is still open
                 if (socket.isClosed() || !socket.isConnected()) {
@@ -76,12 +76,11 @@ public class ChatClient {
                     break; // breaks loop/disconnects if there's no connection
                 }// this is to prevent users from being able to send messages once the server closes
                 
-                // checks and skips empty messages (like blank enters)
+                // checks and skips empty messages
                 if (userInput == null || userInput.trim().isEmpty()) {
                     continue;
                 }
 
-                // this is how you disconnect, by typing exit
                 if (userInput.equalsIgnoreCase("/exit")) {
                     out.println("/exit");
                     break;
@@ -90,12 +89,11 @@ public class ChatClient {
                 out.println(userInput);
             }
 
-            // clean up resources (close the socket and all streams)
+            // close the socket and all streams
             socket.close();
             inputConsole.close();
             out.close();
             in.close();
-        // error messages.
         } catch (UnknownHostException u) {
             // handle exception when the host is unknown
             System.out.println("Host unknown: " + u.getMessage());
@@ -106,7 +104,7 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-    	String serverAddress = "localhost"; //Change this to the ip_address of the computer running the server
+    	String serverAddress = "localhost"; //Can change to the ip_address of the computer running the server
         int serverPort = 8000;
         new ChatClient(serverAddress, serverPort); //localhost/server. 
     }

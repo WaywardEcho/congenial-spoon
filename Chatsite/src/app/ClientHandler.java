@@ -29,7 +29,7 @@ class ClientHandler implements Runnable {
             	username = in.readLine();
             	
             	if (ChatServer.isValidUsername(username)==false){
-            		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
+            		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-:@ or / as the first characters) Please try again.");
             		out.println("Returning to username prompt...");
         	        continue logLoop; // Go back to the username prompt
             	}
@@ -66,7 +66,7 @@ class ClientHandler implements Runnable {
 
                     if (response != null && response.equalsIgnoreCase("yes")) {
                     	while(ChatServer.isValidUsername(username)==false || ChatServer.isUsernameTaken(username)==true) {
-                    		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
+                    		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-:@ or / as the first characters) Please try again.");
                     		out.println("Enter your username: ");
                     		username= in.readLine();	
                     	} // loops until they enter a valid username that is not already taken            	

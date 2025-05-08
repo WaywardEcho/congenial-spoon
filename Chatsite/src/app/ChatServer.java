@@ -5,18 +5,18 @@ import java.net.*;    // socket and network
 import java.util.*;    // lists
 import java.util.concurrent.CopyOnWriteArrayList; // Thread-safe list
 
-//hashing imports vvvv
+//hashing imports
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.nio.charset.StandardCharsets;
 
 public class ChatServer {
-    private static final int PORT = 8000; // port number on which the server listens
+    private static final int PORT = 8000; // port number on which the server listens (can change if busy on computer. make sure to change in ChatClient main too) 
     private static final String USERNAMES_FILE = "storedUsernames.txt"; // list of logins
-    private static Map<String, String> storedUsernames = new HashMap<>(); // hashmap for key-value pairs (username: password)
+    private static Map<String, String> storedUsernames = new HashMap<>(); // username: password
     private static List<ClientHandler> clients = new CopyOnWriteArrayList<>(); // list of connected users
     private static volatile boolean isShuttingDown = false; // if the server is shutting down
-	public static int mesCount = 0;				//counts the number of messages sent
+	public static int mesCount = 0;				
     
     public static void main(String[] args) {
     	loadUsernames(); //load usernames and passwords upon start
@@ -117,14 +117,14 @@ public class ChatServer {
             return false; // No spaces allowed!
         }
 
-        // check restricted first characters (cant start with ^,:,- or anything else you can think of later
+        // check restricted first characters
         char firstChar = username.charAt(0);
-        if (firstChar == '^' || firstChar == ':' || firstChar == '-') {
+        if (firstChar == '^' || firstChar == ':' || firstChar == '-' || firstChar == '@' || firstChar == '/') {
             return false;
         }
 
     	return true;
-    	//return storedUsernames.containsKey(username) && storedUsernames.get(username).equals(password);
+
     
     }
 
@@ -182,7 +182,7 @@ public class ChatServer {
     	}
     	
     	File file = new File(USERNAMES_FILE);
-    	List<String> updatedLines = new ArrayList<>(); //empty list that will temporraly hold all lines WANT TO KEEP
+    	List<String> updatedLines = new ArrayList<>(); //empty list that will temporraly hold all lines WANT TO KEEP!!
     	
     	//read file and filter out the user
     	try (BufferedReader reader = new BufferedReader(new FileReader(file))){
@@ -198,7 +198,7 @@ public class ChatServer {
     		return;
     	}
     	
-    	//rewrite file without the deleted user
+    	//rewrite file without deleted user
     	try(BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))){
     		for (String updatedLine : updatedLines) {
     			writer.write(updatedLine);
@@ -221,7 +221,6 @@ public class ChatServer {
 	   
 	   //rewrite entire file to include new pass
 	   try (BufferedWriter writer = new BufferedWriter(new FileWriter(USERNAMES_FILE))) {
-          //storedUsernames is a HashMap<String, String>, entrySet() gets all usrname + pswd, loop thru each pair
 		   for (Map.Entry<String, String> entry : storedUsernames.entrySet()) {
         	  writer.write(entry.getKey() + ":" + entry.getValue());
         	  writer.newLine(); 
