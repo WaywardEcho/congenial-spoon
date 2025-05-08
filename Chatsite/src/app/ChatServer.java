@@ -49,7 +49,7 @@ public class ChatServer {
     	
     	
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Chat server started on port " + PORT); //start up message, can be changed later
+            System.out.println("Chat server started on port " + PORT);
             
             // continuously accept new client connections
             while (true) {
@@ -95,7 +95,6 @@ public class ChatServer {
             	String[] parts = textLine.split(":", 2); //split into username part and password part
             	 if (parts.length == 2) {
             		 storedUsernames.put(parts[0].trim(), parts[1].trim()); //adds username + password, trim removes white space
-            		 System.out.println("Loaded user: "+ parts[0]); //debug
             	 }
             }
         

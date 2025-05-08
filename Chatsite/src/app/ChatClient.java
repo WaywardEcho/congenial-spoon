@@ -1,25 +1,24 @@
 package app;
 
-import java.io.*;     // input/output
-import java.net.*;    // socket and network
+import java.io.*;     
+import java.net.*;    
 
 
 
 public class ChatClient {
-	// vars to manage the socket and I/O streams
+	
     private Socket socket = null;
     private BufferedReader inputConsole = null;  // reads user input from the console
     private PrintWriter out = null;              // sends data to the server
     private BufferedReader in = null;            // receives data from the server
     private String username;  					// saves the user's name
-//    private Boolean newUsername = true;
+
     
     public ChatClient(String address, int port) {
         try {
             // connect to the server using the provided address and port
-        	//will likely tweak this in order to increase user ease once we have a GUI going
             socket = new Socket(address, port);
-            System.out.println("Connection Established!"); // message outputed to the user 
+            System.out.println("Connection Established!"); // message output to the user 
             
             
             // THIS IS THE BASIS OF BEING ABLE TO CREATE AND SEND MESSAGES
@@ -31,35 +30,16 @@ public class ChatClient {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             
             // read the prompt from the server and display it
-            System.out.print(in.readLine()); // expected to print "Enter your username: " --> this does!! if it does not, that means i messed smth up
-            username = inputConsole.readLine();//saves the username for later
+            System.out.print(in.readLine()); 
+            username = inputConsole.readLine();
             out.println(username);
 
             // start a thread to continuously read messages from the server
-            	//this is the part that holds any of the messages together in a cohearant order. every tweak to this makes the username print as part of the input
-            	//i got so sick of seeing "echo: echo:" and "willow: willow:"
             new Thread(() -> {
                 try {
                     String serverMsg;
                     // continuously read messages from the server
-                    	//listening basically
                     while ((serverMsg = in.readLine()) != null) {
-//                    	while (newUsername) {
-//                    		if (serverMsg.equals("Enter your username: ")){ 
-//                        		System.out.print(serverMsg);
-//                        		username = inputConsole.readLine();
-//                        		out.println(username);
-//                    		}else if(serverMsg.equals("Login successful")){
-//                    			newUsername=false;
-//                    		}else {
-////                    		System.out.print("\r" + " ".repeat(50) + "\r");
-//                             //print the incoming message on its own line
-//                            System.out.println(serverMsg);
-//                                // reprint the prompt so the user knows it's their turn to type
-//                            System.out.print(username + ": ");
-//                    		}
-//                    	}
-                    	
                         if (serverMsg.equalsIgnoreCase("Server is shutting down. You will be disconnected.")) {
                             System.out.print("\nServer has shut down. Exiting...");
                             System.exit(0); // forcefully close the client
@@ -74,7 +54,6 @@ public class ChatClient {
                         System.out.println(serverMsg);
                         // reprint the prompt so the user knows it's their turn to type
                         System.out.print(" - ");
-                     // do not change this ^^^^ loop while this is still functioning in the terminal please
                        //got rid of username here since we couldn't update it, was originally (username + " ")
                     }
                 } catch (IOException e) {
@@ -87,10 +66,7 @@ public class ChatClient {
             // Main thread: read user input from user and send to server, to send to all other users
             String userInput;
             while (true) {
-//            	if (!newUsername) { // Don't print username when re-entering it
-//                    System.out.print(username + ": "); 
-//                }
-            	System.out.print(" - "); // display username prompt before input // "echo: " "megan: " "elise: "
+            	System.out.print(" - ");
             	//got rid of username here since we couldn't update it, was originally (username + " ")
                 userInput = inputConsole.readLine(); // read typed message
 
@@ -119,7 +95,7 @@ public class ChatClient {
             inputConsole.close();
             out.close();
             in.close();
-        // error messages. def can be tweaked
+        // error messages.
         } catch (UnknownHostException u) {
             // handle exception when the host is unknown
             System.out.println("Host unknown: " + u.getMessage());
@@ -130,7 +106,7 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
-    	String serverAddress = "10.140.233.183"; //Change this to the ip_address of the computer running the server
+    	String serverAddress = "localhost"; //Change this to the ip_address of the computer running the server
         int serverPort = 8000;
         new ChatClient(serverAddress, serverPort); //localhost/server. 
     }

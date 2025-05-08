@@ -69,8 +69,7 @@ class ClientHandler implements Runnable {
                     		out.println("Invalid username. (Rules: <32 characters, no spaces, no ^-: characters) Please try again.");
                     		out.println("Enter your username: ");
                     		username= in.readLine();	
-                    	} // loops until they enter a valid username that is not already taken
-      //----------------------------------------------------------------              	
+                    	} // loops until they enter a valid username that is not already taken            	
                         out.println("Enter a new password: ");
                         String newPassword = in.readLine();
                         ChatServer.addUser(username, newPassword);
@@ -197,7 +196,7 @@ class ClientHandler implements Runnable {
     public void sendMessage(String message) {
         if (out != null) {
             out.println(message);  // send the message
-            out.flush();           // flush to ensure it is sent immediately. //this solves so many problems but honestly I'm so tired I can't remember specifics
+            out.flush();           // flush to ensure it is sent immediately. 
         }
     }
     
